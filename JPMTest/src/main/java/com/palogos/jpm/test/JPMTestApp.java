@@ -14,12 +14,10 @@ public class JPMTestApp implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		System.out.println("JPMTEst");
-
 	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(JPMTestApp.class, args);
-		System.out.println("out of the run");
 	}
 
 }
