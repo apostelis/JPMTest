@@ -1,4 +1,4 @@
-package com.palogos.jpm.test.model;
+package com.palogos.jpm.model;
 
 
 public class CommonStock extends Stock {

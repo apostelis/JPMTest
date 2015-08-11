@@ -7,10 +7,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan
+@ComponentScan(basePackages = { "com.palogos.jpm" })
 @EnableAutoConfiguration
 public class JPMTestApp implements CommandLineRunner {
 
+	@Override
 	public void run(String... args) throws Exception {
 		System.out.println("JPMTEst");
 
@@ -18,7 +19,7 @@ public class JPMTestApp implements CommandLineRunner {
 
 	public static void main(String[] args) {
 		SpringApplication.run(JPMTestApp.class, args);
-
+		System.out.println("out of the run");
 	}
 
 }

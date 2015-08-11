@@ -1,4 +1,4 @@
-package com.palogos.jpm.test.model;
+package com.palogos.jpm.model;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
