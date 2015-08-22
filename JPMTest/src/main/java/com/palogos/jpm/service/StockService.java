@@ -8,4 +8,6 @@ public interface StockService {
 	public Stock calculateStockPrice(Stock stock) throws InvalidStockException;
 
 	public Double calculateShareIndex(String indexIdentifier);
+
+	public void printIndex(String string);
 }
