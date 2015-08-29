@@ -2,17 +2,20 @@ package com.palogos.jpm.model;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-public class Trade {
+public class Instruction {
+	@NotNull
+	private UUID uuid = UUID.randomUUID();
 	@NotNull
 	private Stock stock;
 	@NotNull
-	private Date timestamp;
+	private Date captureDateTimeStamp;
 	@NotNull
 	@Min(value = 1)
 	private Integer quantity;
@@ -21,17 +24,11 @@ public class Trade {
 	@DecimalMin(value = "0.001")
 	private BigDecimal price;
 	@NotNull
-	private Offer offer;
-	@NotNull
-	private Demand demand;
+	private String beneficiary;
 
-	public Trade(Offer offer, Demand demand) {
-		this.stock = demand.getStock();
-		this.timestamp = new Date();
-		this.quantity = demand.getQuantity();
-		this.price = demand.getPrice();
-		this.offer = offer;
-		this.demand = demand;
+	@NotNull
+	public Instruction() {
+		super();
 	}
 
 	public Stock getStock() {
@@ -42,12 +39,12 @@ public class Trade {
 		this.stock = stock;
 	}
 
-	public Date getTimestamp() {
-		return timestamp;
+	public Date getCaptureDateTimeStamp() {
+		return captureDateTimeStamp;
 	}
 
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
+	public void setCaptureDateTimeStamp(Date dateTimeStamp) {
+		this.captureDateTimeStamp = dateTimeStamp;
 	}
 
 	public Integer getQuantity() {
@@ -66,20 +63,16 @@ public class Trade {
 		this.price = price;
 	}
 
-	public Offer getOffer() {
-		return offer;
+	public UUID getUuid() {
+		return uuid;
 	}
 
-	public void setOffer(Offer offer) {
-		this.offer = offer;
+	public String getBeneficiary() {
+		return beneficiary;
 	}
 
-	public Demand getDemand() {
-		return demand;
-	}
-
-	public void setDemand(Demand demand) {
-		this.demand = demand;
+	public void setBeneficiary(String beneficiary) {
+		this.beneficiary = beneficiary;
 	}
 
 }
