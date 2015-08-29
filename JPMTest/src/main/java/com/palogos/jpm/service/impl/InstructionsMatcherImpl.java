@@ -33,7 +33,7 @@ public class InstructionsMatcherImpl implements InstructionsMatcher {
 	private LinkedHashMap<UUID, Instruction> demandTable;
 
 	@Override
-	@Scheduled(fixedRate = 5000)
+	@Scheduled(fixedDelay = 5000)
 	public void tradeSearch() {
 		logger.trace("tradeSearch invoked");
 		// int count = tradeService.matchAndGenerateTrades();
@@ -46,10 +46,12 @@ public class InstructionsMatcherImpl implements InstructionsMatcher {
 				Offer offer = (Offer) offerTable.get(offerUuid);
 				boolean symbolMatches = demand.getStock().getSymbol()
 						.equalsIgnoreCase(offer.getStock().getSymbol());
+				// Matching strategy must be introduced as one-to-one matching
+				// will not be very useful in real life
 				if (symbolMatches) {
-					boolean quantityAndPriceMatches = demand.getQuantity() == offer
-							.getQuantity()
-							&& demand.getPrice() == offer.getPrice();
+					boolean quantityAndPriceMatches = demand.getQuantity()
+							.compareTo(offer.getQuantity()) == 0
+							&& demand.getPrice().compareTo(offer.getPrice()) == 0;
 					if (quantityAndPriceMatches) {
 						Trade newTrade = new Trade(offer, demand);
 						try {

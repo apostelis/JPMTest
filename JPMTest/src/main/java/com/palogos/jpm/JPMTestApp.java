@@ -2,9 +2,9 @@ package com.palogos.jpm;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,6 @@ public class JPMTestApp implements CommandLineRunner, AsyncConfigurer {
 	@Override
 	public void run(String... args) throws Exception {
 		stockService.printIndex("gbce");
-		// tradeService.placeOffer(new Offer());
 		tradeService.placeDemand(tradeService.createDemand("Apostolos",
 				stockService.getStockBySymbol("TEA.gbce"), new BigDecimal(
 						100.01), 100));
@@ -106,8 +105,8 @@ public class JPMTestApp implements CommandLineRunner, AsyncConfigurer {
 	}
 
 	@Bean
-	public ConcurrentLinkedQueue<Trade> tradeQueue() {
-		return new ConcurrentLinkedQueue<Trade>();
+	public LinkedList<Trade> tradeList() {
+		return new LinkedList<Trade>();
 	}
 
 	public static void main(String[] args) {

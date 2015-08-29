@@ -3,6 +3,7 @@ package com.palogos.jpm.service.impl;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -43,6 +44,9 @@ public class TradeServiceImpl implements TradeService,
 	@Autowired
 	private LinkedHashMap<UUID, Instruction> demandTable;
 
+	@Autowired
+	private LinkedList<Trade> tradeList;
+
 	// @Autowired
 	private ApplicationEventPublisher publisher;
 
@@ -63,8 +67,8 @@ public class TradeServiceImpl implements TradeService,
 
 	@Override
 	public boolean recordTrade(Trade trade) throws InvalidTradeException {
-
-		return false;
+		tradeList.add(trade);
+		return tradeList.add(trade);
 	}
 
 	@Override
