@@ -7,7 +7,7 @@ import com.palogos.jpm.model.Stock;
 
 public interface StockService {
 
-	public Stock calculateStockPrice(Stock stock) throws InvalidStockException;
+	public void updateStockPrice(Stock stock) throws InvalidStockException;
 
 	public Double calculateShareIndex(String indexIdentifier)
 			throws InvalidStockIndexException;

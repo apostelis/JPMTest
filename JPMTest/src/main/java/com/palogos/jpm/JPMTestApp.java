@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -58,12 +57,15 @@ public class JPMTestApp implements CommandLineRunner, AsyncConfigurer {
 		tradeService.placeOffer(tradeService.createOffer("Apostolos",
 				stockService.getStockBySymbol("POP.gbce"), new BigDecimal(
 						100.01), 1000));
+		stockService.printIndex("gbce");
 	}
 
 	@Override
-	public Executor getAsyncExecutor() {
+	public ConcurrentTaskExecutor getAsyncExecutor() {
 		ThreadPoolTaskExecutor threadPoolExecutor = new ThreadPoolTaskExecutor();
 		threadPoolExecutor.setCorePoolSize(15);
+		threadPoolExecutor.setMaxPoolSize(50);
+		threadPoolExecutor.setQueueCapacity(150);
 		threadPoolExecutor.initialize();
 		ConcurrentTaskExecutor taskExecutor = new ConcurrentTaskExecutor(
 				threadPoolExecutor);
@@ -74,11 +76,12 @@ public class JPMTestApp implements CommandLineRunner, AsyncConfigurer {
 	public ConcurrentHashMap<String, Stock> gbce() {
 		ConcurrentHashMap<String, Stock> gbce = new ConcurrentHashMap<String, Stock>(
 				5);
-		gbce.put("TEA", new CommonStock("TEA", "Common", 0D, null, 100D));
-		gbce.put("POP", new CommonStock("POP", "Common", 8D, null, 100D));
-		gbce.put("ALE", new CommonStock("ALE", "Common", 23D, null, 60D));
-		gbce.put("GIN", new PreferredStock("GIN", "Preferred", null, 2D, 100D));
-		gbce.put("JOE", new CommonStock("JOE", "Common", 13D, null, 250D));
+		gbce.put("TEA", new CommonStock("TEA.gbce", "Common", 0D, null, 100D));
+		gbce.put("POP", new CommonStock("POP.gbce", "Common", 8D, null, 100D));
+		gbce.put("ALE", new CommonStock("ALE.gbce", "Common", 23D, null, 60D));
+		gbce.put("GIN", new PreferredStock("GIN.gbce", "Preferred", null, 2D,
+				100D));
+		gbce.put("JOE", new CommonStock("JOE.gbce", "Common", 13D, null, 250D));
 		return gbce;
 	}
 

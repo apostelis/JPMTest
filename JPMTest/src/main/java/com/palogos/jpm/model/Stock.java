@@ -97,7 +97,7 @@ public abstract class Stock {
 		builder.append(fixedDividend);
 		builder.append(", price=");
 		builder.append(price);
-		builder.append("]");
+		builder.append("]\r\n");
 		return builder.toString();
 	}
 

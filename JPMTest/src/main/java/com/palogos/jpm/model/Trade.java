@@ -82,4 +82,23 @@ public class Trade {
 		this.demand = demand;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Trade [stock=");
+		builder.append(stock);
+		builder.append(", timestamp=");
+		builder.append(timestamp);
+		builder.append(", quantity=");
+		builder.append(quantity);
+		builder.append(", price=");
+		builder.append(price);
+		builder.append(", offer=");
+		builder.append(offer);
+		builder.append(", demand=");
+		builder.append(demand);
+		builder.append("]\r\n");
+		return builder.toString();
+	}
+
 }

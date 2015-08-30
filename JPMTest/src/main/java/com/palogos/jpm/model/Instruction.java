@@ -75,4 +75,23 @@ public class Instruction {
 		this.beneficiary = beneficiary;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Instruction [uuid=");
+		builder.append(uuid);
+		builder.append(", stock=");
+		builder.append(stock);
+		builder.append(", captureDateTimeStamp=");
+		builder.append(captureDateTimeStamp);
+		builder.append(", quantity=");
+		builder.append(quantity);
+		builder.append(", price=");
+		builder.append(price);
+		builder.append(", beneficiary=");
+		builder.append(beneficiary);
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

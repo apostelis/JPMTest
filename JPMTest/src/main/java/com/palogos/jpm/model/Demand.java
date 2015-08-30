@@ -9,4 +9,13 @@ public class Demand extends Instruction {
 		this.setCaptureDateTimeStamp(new Date());
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Demand [Instruction=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

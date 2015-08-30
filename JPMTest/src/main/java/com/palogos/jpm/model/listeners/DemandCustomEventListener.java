@@ -20,12 +20,9 @@ public class DemandCustomEventListener implements
 
 	@Override
 	public void onApplicationEvent(DemandPlacedCustomEvent event) {
-		// TODO Record Event
 		UUID uuid = event.getDemand().getUuid();
 		Demand demand = event.getDemand();
 		demandTable.put(uuid, demand);
-		// TODO Initiate matching
-		// TODO Initiate periodic matching tries
 	}
 
 }

@@ -20,12 +20,9 @@ public class OfferCustomEventListener implements
 
 	@Override
 	public void onApplicationEvent(OfferPlacedCustomEvent event) {
-		// TODO Record Event
 		UUID uuid = event.getOffer().getUuid();
 		Offer offer = event.getOffer();
 		offerTable.put(uuid, offer);
-		// TODO Initiate matching
-		// TODO Initiate periodic matching tries
 	}
 
 }

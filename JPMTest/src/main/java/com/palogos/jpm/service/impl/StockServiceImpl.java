@@ -1,6 +1,7 @@
 package com.palogos.jpm.service.impl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
@@ -9,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.palogos.jpm.exceptions.InvalidStockException;
@@ -30,7 +32,8 @@ public class StockServiceImpl implements StockService {
 	private LinkedList<Trade> tradeList;
 
 	@Override
-	public Stock calculateStockPrice(Stock stock) throws InvalidStockException {
+	@Async
+	public void updateStockPrice(Stock stock) throws InvalidStockException {
 		LinkedList<Trade> trades = new LinkedList<Trade>();
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, -15);
@@ -47,8 +50,26 @@ public class StockServiceImpl implements StockService {
 				}
 			}
 		}
-		stock.setPrice(geometricMeanForListOfTrades(trades).doubleValue());
-		return stock;
+		stock.setPrice(calculateStockPriceBasedOnListOfTrades(trades)
+				.doubleValue());
+		logger.info(stock);
+
+		String[] symbolArray;
+		try {
+			symbolArray = splitIndexFromSymbol(stock.getSymbol());
+			String indexIdentifier = symbolArray[1];
+			// String symbol = symbolArray[0];
+			ConcurrentHashMap<String, Stock> currentIndex = (ConcurrentHashMap<String, Stock>) annotationConfigApplicationContext
+					.getBean(indexIdentifier);
+			if (currentIndex == null)
+				throw new InvalidStockIndexException("Index not found");
+
+			currentIndex.put(stock.getSymbol(), stock);
+
+		} catch (InvalidStockIndexException e) {
+			logger.error("Error in stock price calculation", e);
+		}
+
 	}
 
 	@Override
@@ -58,26 +79,32 @@ public class StockServiceImpl implements StockService {
 				.getBean(indexIdentifier);
 		if (currentIndex == null)
 			throw new InvalidStockIndexException("Index not found");
-		LinkedList<Trade> trades = new LinkedList<Trade>();
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MINUTE, -15);
-		Date fifteenMinutesEarlier = cal.getTime();
+		BigDecimal priceMult = new BigDecimal(0);
 
-		for (Trade trade : tradeList) {
-			if (!trade.getTimestamp().before(fifteenMinutesEarlier)) {
-				boolean isForGivenIndex = currentIndex.containsKey(trade
-						.getStock().getSymbol().substring(0, 3));
-				if (isForGivenIndex) {
-					trades.add(trade);
-				}
+		ArrayList<String> keysList = new ArrayList<String>(5);
+		keysList.addAll(currentIndex.keySet());
+		for (int i = 0; i < keysList.size(); i++) {
+			if (i == 0) {
+				priceMult = new BigDecimal(currentIndex.get(keysList.get(i))
+						.getPrice());
 			} else {
-				break;
+				priceMult.multiply(new BigDecimal(currentIndex.get(
+						keysList.get(i)).getPrice()));
 			}
 		}
-		BigDecimal indexPrice = geometricMeanForListOfTrades(trades);
-		logger.info(indexPrice);
 
-		return indexPrice.doubleValue();
+		double indexPrice = Math.pow(priceMult.doubleValue(),
+				1.0 / keysList.size());
+
+		logger.info(indexIdentifier + " new price: " + indexPrice);
+
+		return indexPrice;
+	}
+
+	private BigDecimal geometricMeanForListOfTrades(LinkedList<Trade> trades) {
+		BigDecimal retval = new BigDecimal(0);
+
+		return retval;
 	}
 
 	@Override
@@ -91,17 +118,13 @@ public class StockServiceImpl implements StockService {
 	public Stock getStockBySymbol(String stockSymbol)
 			throws StockNotFoundException, InvalidStockIndexException,
 			InvalidStockException {
-		if (stockSymbol.indexOf('.') < 1) {
-			throw new InvalidStockIndexException(
-					"You must specify the index for the stock");
-		}
-		String[] symbolArray = stockSymbol.split("\\.");
-		if (symbolArray.length < 2) {
-			throw new InvalidStockException(
-					"Invalid stock. Stocks must be specified by <symbol>.<index>");
-		}
-		String symbol = symbolArray[0];
+
+		String[] symbolArray = splitIndexFromSymbol(stockSymbol);
+
 		String index = symbolArray[1];
+
+		String symbol = symbolArray[0];
+
 		ConcurrentHashMap<String, Stock> currentIndex = (ConcurrentHashMap<String, Stock>) annotationConfigApplicationContext
 				.getBean(index);
 		if (currentIndex == null)
@@ -113,19 +136,34 @@ public class StockServiceImpl implements StockService {
 		return currentStock;
 	}
 
-	private BigDecimal geometricMeanForListOfTrades(LinkedList<Trade> trades) {
+	private BigDecimal calculateStockPriceBasedOnListOfTrades(
+			LinkedList<Trade> trades) {
 		BigDecimal nominator = new BigDecimal(0);
 		BigDecimal denominator = new BigDecimal(0);
 		for (Trade trade : trades) {
 			BigDecimal quantity = new BigDecimal(trade.getQuantity());
-			nominator.add(trade.getPrice().multiply(quantity));
-			denominator.add(quantity);
+			nominator = nominator.add(trade.getPrice().multiply(quantity));
+			denominator = denominator.add(quantity);
 		}
 		if (denominator == null
 				|| denominator.compareTo(new BigDecimal(0)) == 0) {
 			return new BigDecimal(0);
 		}
-		BigDecimal geomMean = nominator.divide(denominator);
-		return geomMean;
+		BigDecimal movingWinPriceMean = nominator.divide(denominator);
+		return movingWinPriceMean;
+	}
+
+	private String[] splitIndexFromSymbol(String stockSymbol)
+			throws InvalidStockIndexException, InvalidStockException {
+		if (stockSymbol.indexOf('.') < 1) {
+			throw new InvalidStockIndexException(
+					"You must specify the index for the stock");
+		}
+		String[] symbolArray = stockSymbol.split("\\.");
+		if (symbolArray.length < 2) {
+			throw new InvalidStockException(
+					"Invalid stock. Stocks must be specified by <symbol>.<index>");
+		}
+		return symbolArray;
 	}
 }

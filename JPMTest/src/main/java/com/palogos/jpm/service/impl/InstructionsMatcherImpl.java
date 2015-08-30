@@ -9,12 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.palogos.jpm.exceptions.InvalidStockException;
 import com.palogos.jpm.exceptions.InvalidTradeException;
 import com.palogos.jpm.model.Demand;
 import com.palogos.jpm.model.Instruction;
 import com.palogos.jpm.model.Offer;
 import com.palogos.jpm.model.Trade;
 import com.palogos.jpm.service.InstructionsMatcher;
+import com.palogos.jpm.service.StockService;
 import com.palogos.jpm.service.TradeService;
 
 @Component
@@ -27,6 +29,9 @@ public class InstructionsMatcherImpl implements InstructionsMatcher {
 	private TradeService tradeService;
 
 	@Autowired
+	StockService stockService;
+
+	@Autowired
 	private LinkedHashMap<UUID, Instruction> offerTable;
 
 	@Autowired
@@ -34,7 +39,7 @@ public class InstructionsMatcherImpl implements InstructionsMatcher {
 
 	@Override
 	@Scheduled(fixedDelay = 5000)
-	public void tradeSearch() {
+	public void tradeSearch() throws InvalidStockException {
 		logger.trace("tradeSearch invoked");
 		// int count = tradeService.matchAndGenerateTrades();
 		// logger.info("Trades generated: " + count);
@@ -56,6 +61,8 @@ public class InstructionsMatcherImpl implements InstructionsMatcher {
 						Trade newTrade = new Trade(offer, demand);
 						try {
 							tradeService.recordTrade(newTrade);
+							stockService.updateStockPrice(newTrade
+									.getStock());
 						} catch (InvalidTradeException e) {
 							logger.error("Something went terribly wrong with the creation of the trade. Offer: "
 									+ offer.getUuid()
@@ -68,7 +75,6 @@ public class InstructionsMatcherImpl implements InstructionsMatcher {
 				}
 			}
 		}
-
 	}
 
 	@Override
